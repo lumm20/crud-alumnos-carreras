@@ -1,0 +1,20 @@
+{
+  "name": "abc-db--alumnos-carreras",
+  "version": "1.0.0",
+  "description": "aplicacion para altas, bajas y cambios (ABC) de alumnos y carreras. Practica con base de datos mysql",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "luisaM",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

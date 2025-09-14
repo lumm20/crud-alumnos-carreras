@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Alumnos y Carreras</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>Gestión de Alumnos y Carreras</h1>
+    <form id="formulario" class="form">
+        <div class="selector">
+            <div>
+                <label for="tipo">Tipo:</label>
+                <select id="tipo">
+                    <option value="alumno">Alumno</option>
+                    <option value="carrera">Carrera</option>
+                </select>
+            </div>
+            <div>
+                <label for="operacion">Operación:</label>
+                <select id="operacion">
+                    <option value="agregar">Agregar</option>
+                    <option value="eliminar">Eliminar</option>
+                    <option value="modificar">Modificar</option>
+                </select>
+            </div>
+        </div>
+        <br>
+        <div class="fields">
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" required>
+            </div>
+            <br>
+            <div>
+                <label for="id">ID:</label>
+                <input type="text" id="id" required disabled>
+            </div>
+            <div id="carrera-div">
+                <label for="carrera">Carrera:</label>
+                <select id="carreras">
+                    <option value="">--Seleccione--</option>
+                </select>
+            </div>
+        </div>
+        <br>
+        <div class="buttons">
+            <button type="submit">Aceptar</button>
+            <button type="button" id="limpiar">Limpiar</button>
+        </div>
+    </form>
+    <script type="module" src="../main.js"></script>
+</body>
+
+</html>
