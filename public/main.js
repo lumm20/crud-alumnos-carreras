@@ -9,6 +9,11 @@ let carrerasActuales =[];
 let siguienteIdAlumno;
 let siguienteIdCarrera;
 
+/**
+ * manda las peticiones para agregar un alumno o carrera
+ * @param {*} tipo indica el tipo de entidad a agregar, 'alumno' o 'carrera'
+ * @param {*} entidad el objeto a agregar
+ */
 function add(tipo, entidad) {
     if (tipo === 'alumno') {
         fetch('/alumnos', {
@@ -47,8 +52,14 @@ function add(tipo, entidad) {
     }
 }
 
+/**
+ * obtiene la cantidad de carreras registradas.
+ * Esto lo hice para sacar el id para cada carrera que se registre.
+ * Por ejemplo, si hay 5 carreras registradas, la siguiente carrera
+ * incluira el 6 en su id. El formato del id es car-numero
+ */
 function getMajorsQuantity(){
-    fetch('/carreras')
+    fetch('/carreras/count')
     .then(res => res.json())
     .then(data =>{
         const { cantidadCarreras } = data;
@@ -57,6 +68,42 @@ function getMajorsQuantity(){
     .catch(err=>{console.error(err);})
 }
 
+/**
+ * obtiene la cantidad de alumnos registrados.
+ * Esto lo hice para sacar el id para cada alumno que se registre.
+ * Por ejemplo, si hay 5 alumnos registrados, el siguiente alumno
+ * incluira el 6 en su id. El formato del id es alu-numero
+ */
+function getStudentsQuantity(){
+    fetch('/alumnos')
+    .then(res => res.json())
+    .then(data =>{
+        const { cantidadAlumnos } = data;
+        siguienteIdAlumno = cantidadAlumnos +1;
+    })
+    .catch(err=>{console.error(err);})
+}
+
+/**
+ * obtiene la lista con las carreras registradas.
+ * Esto es para llenar las opciones del select de carreras
+ * cuando se quiera registrar un alumno nuevo 
+ */
+function getMajors(){
+    fetch('/carreras')
+    .then(res => res.json())
+    .then(data =>{
+        const { carreras } = data;
+        carrerasActuales = [...carreras];
+    })
+    .catch(err=>{console.error(err);})
+}
+
+/**
+ * crea un elemento tipo 'option' para el select
+ * @param {*} value el valor que tendra esa opcion
+ * @param {*} textContent el texto que va a mostrar la opcion en el select
+ */
 function createSelectOption(value, textContent){
     const option = document.createElement('option');
     option.value = value;
@@ -64,35 +111,29 @@ function createSelectOption(value, textContent){
     carreraSelect.appendChild(option);
 }
 
+/**
+ * si el array de carreras no esta vacio,
+ * llena el select con las carreras registradas
+ */
 function fillMajorsSelect() {
-    fetch('/alumnos')
-        .then(res => res.json())
-        .then(data => {
-            const { cantidadAlumnos, carreras } = data;
-            siguienteIdAlumno = cantidadAlumnos +1;
-            carreraSelect.innerHTML = "";
-            
-
-            carreras.forEach(carrera => {
-                const option = document.createElement('option');
-                option.value = carrera.id;
-                option.textContent = carrera.nombre;
-                carreraSelect.appendChild(option);
-            });
-            carrerasActuales = [...carreras];
-        })
-        .catch(err =>{
-            console.error(err);
-        });
-
+    getMajors();
+    if(!carrerasActuales[0]) return;
+    carreraSelect.innerHTML = "";
+    carrerasActuales.forEach(carrera => {
+        createSelectOption(carrera.id, carrera.nombre);
+    });
 }
 
-
+/**
+ * actualiza los campos del form cuando se cambia la opcion
+ * de alumno o carrera 
+ */
 function refreshView() {
     const tipo = tipoSelect.value;
     const carreraDiv = document.getElementById('carrera-div');
 
     if (tipo === 'alumno') {
+        getStudentsQuantity();
         fillMajorsSelect();
         carreraDiv.classList.remove('invisible');
     } else {
@@ -116,6 +157,7 @@ formulario.addEventListener('submit', (e) => {
     console.log(`Operación: ${operacion}, Tipo: ${tipo}, Nombre: ${nombre}`);
 
     let entidad;
+    //dependiendo de la opcion seleccionada, se crea un obj de alumno o de carrera
     if (tipo === 'alumno') {
         const carreraId = document.getElementById('carreras').value;
         entidad = { nombre, id, carreraId }
@@ -124,6 +166,7 @@ formulario.addEventListener('submit', (e) => {
         entidad = { nombre, id }
     }
 
+    //por ahora nomas esta la funcion para agregar ajjajaj
     if (operacion === 'agregar') {
         add(tipo, entidad);
     } 
@@ -136,6 +179,10 @@ formulario.addEventListener('submit', (e) => {
     refreshView();
 });
 
+/**
+ * cuando se ingrese texto en el campo del nombre, se va a 
+ * llenar en automatico el campo del id
+ */
 nombreInput.addEventListener('input', () => {
     const nombre = nombreInput.value.trim();
     const idInput = document.getElementById('id');

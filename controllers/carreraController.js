@@ -37,12 +37,8 @@ async function buscarCarrera(idCarrera){
 async function agregarCarrera( carrera){
     if(!carrera) throw new Error('No se ingresó la información de la carrera');
     let carreraExistente;
-    try {
-        carreraExistente = await buscarCarrera(carrera.id);
-    } catch (error) {
-        console.error(`Error al buscar la carrera con id ${id}:`,error);
-        throw new Error('Hubo un error al buscar la carrera ingresada');
-    }
+    carreraExistente = await buscarCarrera(carrera.id);
+    
     if(carreraExistente) throw new Error('Ya hay una carrera registrada con ese ID');
 
     const newCarrera = new Carrera(carrera.nombre, carrera.id);

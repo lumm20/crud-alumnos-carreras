@@ -5,11 +5,23 @@ const {
 const express = require('express');
 const router = express.Router();
 
+
+
 router.get('/', async (req, res) => {
     try {
-        const carrerasActuales = await obtenerCantidadCarreras();
+        const carrerasActuales = await buscarCarreras();
         
-        res.json({cantidadCarreras:carrerasActuales});
+        res.json({carreras:carrerasActuales});
+    } catch (error) {
+        res.status(500).json({error});
+    }
+});
+
+router.get('/count', async (req, res) => {
+    try {
+        const cantidadCarreras = await obtenerCantidadCarreras();
+        
+        res.json({cantidadCarreras});
     } catch (error) {
         res.status(500).json({error});
     }

@@ -1,16 +1,14 @@
 const express =require('express');
 const {agregarAlumno, obtenerCantidadAlumnos} = require('../controllers/alumnoController');
 
-const {buscarCarreras,} = require('../controllers/carreraController');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
         const alumnosActuales = await obtenerCantidadAlumnos();        
-        const carreras = await buscarCarreras();
 
-        res.json({cantidadAlumnos:alumnosActuales, carreras });
+        res.json({cantidadAlumnos:alumnosActuales});
     } catch (error) {
         res.status(500).json({error})
     }
