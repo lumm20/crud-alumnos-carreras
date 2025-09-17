@@ -17,7 +17,11 @@ class CarreraDao {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(result[0].cantidad);
+                    if (result.length === 0) {
+                        resolve(0);
+                    } else {
+                        resolve(result[0].cantidad);
+                    }
                 }
             });
         });
@@ -47,10 +51,10 @@ class CarreraDao {
      */
     buscarCarrera(id) {
         return new Promise((resolve, reject) => {
-            const selectQuery = `SELECT * FROM carreras WHERE id = '${id}'`;
+            const selectQuery = `SELECT * FROM carreras WHERE id = ?`;
             const values = [id];
 
-            db.query(selectQuery,values, (err, result) => {
+            db.query(selectQuery, values, (err, result) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -65,20 +69,24 @@ class CarreraDao {
      * @param {*} carrera Entidad de tipo Carrera con los datos a registrar
      * @returns Una promesa con el resultado de la inserción del registro 
      */
-    agregarCarrera(carrera) {
-        return new Promise((resolve, reject) => {
-            const insertQuery = `INSERT INTO carreras (id, nombre) VALUES ('${carrera.id}', '${carrera.nombre}')`;
+agregarCarrera(carrera) {
+    return new Promise((resolve, reject) => {
+        // TERCERA VERIFICACIÓN: Asegúrate de que el objeto 'carrera' que llega aquí tiene la propiedad 'id'.
+        console.log('DAO - Objeto de carrera recibido:', carrera);
+        console.log('DAO - ID a insertar:', carrera.id);
+        
+        const insertQuery = `INSERT INTO carreras (id, nombre) VALUES (?, ?)`;
+        const values = [carrera.id, carrera.nombre];
 
-            const values = [carrera.id, carrera.nombre];
-
-            db.query(insertQuery, values,(err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
+        db.query(insertQuery, values, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
         });
-    }
+    });
+}
+
 }
 module.exports = new CarreraDao();
