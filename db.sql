@@ -16,6 +16,6 @@ CREATE TABLE alumnos (
 --cambia tu usuario y la contra
 ALTER USER 'root'@'localhost' 
 IDENTIFIED WITH mysql_native_password
-BY 'password';
+BY '1234a';
 
 FLUSH PRIVILEGES;
