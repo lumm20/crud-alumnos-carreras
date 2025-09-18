@@ -13,6 +13,7 @@ let carrerasActuales = [];
  * @param {*} entidad el objeto a agregar
  */
 function add(tipo, entidad) {
+    console.log(entidad);
     const url = tipo === 'alumno' ? '/alumnos' : '/carreras';
     fetch(url, {
         method: 'POST',
@@ -46,8 +47,14 @@ function add(tipo, entidad) {
 async function getMajors() {
     try {
         const res = await fetch('/carreras');
-        // Asegúrate de que el backend siempre devuelva un array en la respuesta
-        carrerasActuales = await res.json();
+        const data = await res.json();
+        console.log('data:',data);
+        const { msj, carreras }= data;
+        console.log('msj y carreras:',msj, carreras);
+        if(msj) {
+            alert(msj);
+        }
+        carrerasActuales = carreras;
         fillMajorsSelect();
     } catch (err) {
         console.error('Error al obtener las carreras:', err);
@@ -72,6 +79,7 @@ function createSelectOption(value, textContent) {
  */
 function fillMajorsSelect() {
     carreraSelect.innerHTML = "";
+    createSelectOption('','--Seleccione--');
     if (!carrerasActuales || carrerasActuales.length === 0) return;
     carrerasActuales.forEach(carrera => {
         createSelectOption(carrera.id, carrera.nombre);
@@ -86,14 +94,12 @@ async function refreshView() {
     const tipo = tipoSelect.value;
     const carreraDiv = document.getElementById('carrera-div');
 
-    // No necesitas obtener la cantidad de alumnos/carreras si el backend se encarga de los IDs
     if (tipo === 'alumno') {
         await getMajors();
         carreraDiv.classList.remove('invisible');
     } else {
         carreraDiv.classList.add('invisible');
     }
-    // No se usa formulario.reset() aquí para no limpiar el formulario inmediatamente después de un cambio
 }
 
 
@@ -114,6 +120,7 @@ formulario.addEventListener('submit', (e) => {
     if (tipo === 'alumno') {
         const carreraId = document.getElementById('carreras').value;
         entidad = { nombre, carreraId };
+        console.log('en form:',entidad);
     } else if (tipo === 'carrera') {
         entidad = { nombre };
     }
@@ -129,21 +136,6 @@ formulario.addEventListener('submit', (e) => {
     // }
     formulario.reset();
 });
-
-/**
- * Se elimina la lógica de autollenado del ID.
- * La asignación de ID ahora la maneja el backend.
- */
-nombreInput.addEventListener('input', () => {
-    const idInput = document.getElementById('id');
-    const tipo = tipoSelect.value;
-    if (tipo === 'alumno' || tipo === 'carrera') {
-        idInput.value = 'El ID se asignará automáticamente';
-    } else {
-        idInput.value = '';
-    }
-});
-
 
 limpiarBtn.addEventListener('click', () => {
     formulario.reset();
