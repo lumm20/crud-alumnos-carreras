@@ -88,5 +88,18 @@ agregarCarrera(carrera) {
     });
 }
 
+eliminar(id) {
+    return new Promise((resolve, reject) => {
+        const query = 'DELETE FROM carreras WHERE id = ?';
+        db.query(query, [id], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve({ id });
+            }
+        });
+    });
+}
+
 }
 module.exports = new CarreraDao();

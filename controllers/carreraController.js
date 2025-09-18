@@ -34,4 +34,14 @@ const getCarrera = async(req, res)=> {
     }
 }
 
-module.exports = {addCarrera, getCarreras,getCarrera};
+const eliminarCarrera = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const carreraEliminada = await CarreraDao.eliminar(id);
+        res.status(200).json(carreraEliminada);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = {addCarrera, getCarreras,getCarrera, eliminarCarrera};

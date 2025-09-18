@@ -38,6 +38,26 @@ function add(tipo, entidad) {
         alert('Hubo un error en la petición!!!');
     });
 }
+/**
+ * Funcion para eliminar!!
+ * @param {*} tipo indica el tipo de entidad a agregar, 'alumno' o 'carrera'
+ * @param {*} entidad el objeto a eliminar
+ */
+function eliminar(tipo, id) {
+    const url = `/${tipo}s/${id}`;
+    fetch(url, {
+        method: 'DELETE',
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(`${tipo} eliminado: ${data.nombre}`);
+        refreshView(); 
+    })
+    .catch(err => {
+        console.error(`Error al eliminar el ${tipo}:`, err);
+        alert(`Hubo un error al eliminar el ${tipo}!!!`);
+    });
+}
 
 /**
  * obtiene la lista con las carreras registradas.
