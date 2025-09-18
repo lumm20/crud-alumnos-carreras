@@ -50,7 +50,7 @@ function eliminar(tipo, id) {
     })
     .then(res => res.json())
     .then(data => {
-        alert(`${tipo} eliminado: ${data.nombre}`);
+        alert(`${tipo} eliminado: ID ${data.id}`);
         refreshView(); 
     })
     .catch(err => {
@@ -149,6 +149,16 @@ formulario.addEventListener('submit', (e) => {
     if (operacion === 'agregar') {
         add(tipo, entidad);
     }
+
+    else if (operacion === 'eliminar') {
+        const id = document.getElementById('id').value; 
+        if(id) {
+            eliminar(tipo, id);
+        } else {
+            alert('Por favor, ingrese el ID para eliminar.');
+        }
+    }
+
     // else if (operacion === 'eliminar') {
     //      eliminar(entidad, tipo === 'alumno' ? alumnos : carreras);
     // } else if (operacion === 'modificar') {
