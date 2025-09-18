@@ -1,4 +1,4 @@
-const {addAlumno, getAlumno, getAlumnos} = require('../controllers/alumnoController');
+const {addAlumno, getAlumno, getAlumnos, eliminarAlumno} = require('../controllers/alumnoController');
 const alumnoController = require('../controllers/alumnoController');
 const express = require('express');
 const router = express.Router();
@@ -11,6 +11,6 @@ router.get('/:id', getAlumno);
 router.post('/', addAlumno);
 
 //Ruta para eliminar a un alumno
-router.delete('/:id', alumnoController.eliminarAlumno);
+router.delete('/:id', eliminarAlumno);
 
 module.exports = router;

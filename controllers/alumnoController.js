@@ -1,5 +1,6 @@
 const { buscarAlumno, agregarAlumno} = require("../services/alumnoService.js");
 
+
 const addAlumno = async (req, res) => {
     try {
         const { nombre, carreraId } = req.body;
@@ -38,4 +39,14 @@ const getAlumno = async (req,res) =>{
     }
 }
 
-module.exports = {getAlumno, addAlumno, getAlumnos};
+const eliminarAlumno = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const alumnoEliminado = await AlumnoDao.eliminar(id);
+        res.status(200).json(alumnoEliminado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = {getAlumno, addAlumno, getAlumnos, eliminarAlumno};

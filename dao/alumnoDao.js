@@ -53,7 +53,28 @@ class AlumnoDao {
         });
     }
 
+
+
+    /**
+     * Elimina un registro de alumno de la tabla.
+     * @param {*} id El ID del alumno a eliminar.
+     * @returns Una promesa con el resultado de la eliminación.
+     */
+    eliminar(id) {
+        return new Promise((resolve, reject) => {
+            const query = 'DELETE FROM alumnos WHERE id = ?';
+            db.query(query, [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    // Devuelve el ID del registro eliminado
+                    resolve({ id });
+                }
+            });
+        });
+    }
 }
+
 
 // module.exports.addAlumno = exports.addAlumno;
 // module.exports.buscarAlumnos = exports.buscarAlumnos;
