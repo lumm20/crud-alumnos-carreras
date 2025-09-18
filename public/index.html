@@ -35,6 +35,11 @@
                 <input type="text" id="nombre" required>
             </div>
             <br>
+            <div id="id-div" class="form-group invisible">
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" class="form-control">
+            </div>
+            <br>
             <div id="carrera-div">
                 <label for="carrera">Carrera:</label>
                 <select id="carreras">
@@ -48,7 +53,19 @@
             <button type="button" id="limpiar">Limpiar</button>
         </div>
     </form>
-   
+    
+    <hr>
+    
+    <div class="listas-container">
+        <h2>Carreras Registradas</h2>
+        <ul id="carreras-lista">
+            </ul>
+        
+        <h2>Alumnos Registrados</h2>
+        <ul id="alumnos-lista">
+            </ul>
+    </div>
+    
     <script type="module" src="./main.js"></script>
 </body>
 
