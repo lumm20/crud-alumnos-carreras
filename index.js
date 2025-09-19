@@ -4,7 +4,7 @@ const alumnosRoutes = require('./routes/alumnos.js');
 const carrerasRoutes = require('./routes/carreras.js');
 const db = require('./config/db');
 const path = require('path');
-const PORT = 3000;
+const PORT = 3100;
 
 db.connect((err) => {
     if (err) {
