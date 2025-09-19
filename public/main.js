@@ -1,13 +1,19 @@
 const formulario = document.getElementById('formulario');
 const tipoSelect = document.getElementById('tipo');
+const operacionSelect = document.getElementById('operacion');
+const carreraSelect = document.getElementById('carreras');
+const alumnoSelect = document.getElementById('alumnos');
 const nombreInput = document.getElementById('nombre');
 const limpiarBtn = document.getElementById('limpiar');
-const carreraSelect = document.getElementById('carreras');
 const alumnosLista = document.getElementById('alumnos-lista');
 const carrerasLista = document.getElementById('carreras-lista');
 
 
 let carrerasActuales = [];
+let alumnosActuales = [];
+
+let alumnoSeleccionado;
+let carreraSeleccionada;
 
 /**
  * Manda las peticiones para agregar un alumno o carrera.
@@ -47,7 +53,10 @@ function add(tipo, entidad) {
  * @param {*} id el ID del objeto a eliminar
  */
 function eliminar(tipo, id) {
+    if(tipo !== "alumno" && tipo !== "carrera") return;
     const url = `/${tipo}s/${id}`;
+    
+    console.log('url',url);
     fetch(url, {
         method: 'DELETE',
     })
@@ -63,6 +72,33 @@ function eliminar(tipo, id) {
 }
 
 /**
+ * Funcion para modificar!!
+ * @param {*} tipo indica el tipo de entidad a modificar, 'alumno' o 'carrera'
+ * @param {*} id el ID del objeto a modificar
+ */
+function modificar(tipo, id, datos) {
+    if(tipo !== "alumno" && tipo !== "carrera") return;
+    const url = `/${tipo}s/${id}`;
+    
+    fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(`${tipo} modificado: ID ${data.id}`);
+        refreshView(); 
+    })
+    .catch(err => {
+        console.error(`Error al modificar el ${tipo}:`, err);
+        alert(`Hubo un error al modificar el ${tipo}!!!`);
+    });
+}
+
+/**
  * obtiene la lista con las carreras registradas.
  * Esto es para llenar las opciones del select de carreras
  * cuando se quiera registrar un alumno nuevo.
@@ -70,10 +106,9 @@ function eliminar(tipo, id) {
 async function getMajors() {
     try {
         const res = await fetch('/carreras');
-        // El backend ahora solo devuelve el array de carreras directamente.
-        carrerasActuales = await res.json();
-        fillMajorsSelect();
-        displayCarreras(); // Llama a la nueva función para mostrar la lista
+        const {carreras} = await res.json();
+        carrerasActuales = carreras;
+        fillSelect(carreraSelect, carrerasActuales);
     } catch (err) {
         console.error('Error al obtener las carreras:', err);
     }
@@ -84,20 +119,14 @@ async function getAlumnos() {
     try {
         const res = await fetch('/alumnos');
         const alumnos = await res.json();
-        alumnosLista.innerHTML = '';
-        if (alumnos.length === 0) {
-            alumnosLista.innerHTML = '<li>No hay alumnos registrados.</li>';
-        }
-        alumnos.forEach(alumno => {
-            const li = document.createElement('li');
-            li.innerHTML = `ID: ${alumno.id}, Nombre: ${alumno.nombre} 
-                            <button onclick="eliminar('alumno', '${alumno.id}')">Eliminar</button>`;
-            alumnosLista.appendChild(li);
-        });
+        alumnosActuales = alumnos;
+        fillSelect(alumnoSelect, alumnos);
     } catch (err) {
         console.error('Error al obtener los alumnos:', err);
     }
 }
+
+
 
 //Para mostrar la lista de carreras
 
@@ -120,63 +149,104 @@ function displayCarreras() {
  * @param {*} value el valor que tendra esa opcion
  * @param {*} textContent el texto que va a mostrar la opcion en el select
  */
-function createSelectOption(value, textContent) {
+function createSelectOption(value, textContent, select) {
     const option = document.createElement('option');
     option.value = value;
     option.textContent = textContent;
-    carreraSelect.appendChild(option);
+    select.appendChild(option);
 }
 
 /**
- * si el array de carreras no esta vacio,
- * llena el select con las carreras registradas
+ * si el array del param no esta vacio,
+ * llena el select del parametro con la lista de entidades del parametro 
  */
-function fillMajorsSelect() {
-    carreraSelect.innerHTML = "";
-    createSelectOption('', '--Seleccione--');
-    if (!carrerasActuales || carrerasActuales.length === 0) return;
-    carrerasActuales.forEach(carrera => {
-        createSelectOption(carrera.id, carrera.nombre);
+function fillSelect(select, arr) {
+    select.innerHTML = "";
+    createSelectOption('', '--Seleccione--', select);
+    if (!arr || arr.length === 0) return;
+    arr.forEach(entidad => {
+        createSelectOption(entidad.id, entidad.nombre, select);
     });
 }
 
 /**
- * actualiza los campos del form cuando se cambia la opcion
+ * Actualiza los campos del form cuando cambia la opción
  * de alumno o carrera
  */
 async function refreshView() {
-    const tipo = tipoSelect.value;
-    const operacion = document.getElementById('operacion').value;
-    const carreraDiv = document.getElementById('carrera-div');
-    const idDiv = document.getElementById('id-div');
-    const nombreInput = document.getElementById('nombre');
+  const tipo = tipoSelect.value;
+  const operacion = operacionSelect.value;
+  const carreraDiv = document.getElementById('carreras-div');
+  const listaAlumnosDiv = document.getElementById('alumnos-div');
 
-    if (operacion === 'eliminar' || operacion === 'modificar') {
-        idDiv.classList.remove('invisible');
-        nombreInput.required = false;
-        if(operacion === 'eliminar') {
-            nombreInput.classList.add('invisible');
-            carreraDiv.classList.add('invisible');
-        } else {
-             nombreInput.classList.remove('invisible');
-        }
-    } else {
-        idDiv.classList.add('invisible');
-        nombreInput.required = true;
-        nombreInput.classList.remove('invisible');
-        carreraDiv.classList.remove('invisible');
-    }
+  const isStudent = tipo === 'alumno';
+  const isEditing = operacion === 'eliminar' || operacion === 'modificar';
+  const isAdding = operacion === 'agregar';
 
-    if (tipo === 'alumno') {
-        await getMajors();
-        await getAlumnos();
-        carreraDiv.classList.remove('invisible');
-    } else {
-        await getMajors();
-        carreraDiv.classList.add('invisible');
+  nombreInput.disabled = !isAdding;
+  carreraSelect.disabled = !(isStudent || (!isStudent && isEditing));
+  nombreInput.value = '';
+  carreraSelect.value = '';
+
+  carreraDiv.classList.toggle('invisible',!(isStudent || (!isStudent && isEditing)));
+
+  listaAlumnosDiv.classList.toggle('invisible', !(isStudent && isEditing));
+
+  if (isStudent) {
+    if (isEditing) {
+      await getAlumnos();
+    } else if (isAdding) {
+      await getMajors();
     }
+  }
 }
 
+
+function submitForm(tipo, nombre, operacion){
+    const id =  alumnoSeleccionado?.id ?? carreraSeleccionada?.id;
+    const msjAlert = 
+    `Por favor, seleccione 
+    ${tipo==='alumno'?'el alumno ':'la carrera '}
+    a ${operacion}`;
+    console.log(msjAlert);
+    switch (operacion) {
+    case 'agregar':
+      if (!nombre) {
+        alert('El nombre es requerido.');
+        return;
+    }
+      add(tipo, {
+        nombre,
+        ...(tipo === 'alumno' && { carreraId: document.getElementById('carreras').value })
+      });
+      break;
+    case 'eliminar':
+      {
+        if (!id) {
+            alert(msjAlert);
+            return;
+        }
+        eliminar(tipo, id);
+      }
+      break;
+    case 'modificar':
+      {
+        if (!id) {
+            alert(msjAlert);
+            return; 
+        }
+        modificar(tipo, id, {
+          datos: {
+            nombre: nombreInput.value,
+            ...(tipo === 'alumno' && { carrera: carreraSelect.value })
+          }
+        });
+      }
+      break;
+    default:
+      console.warn(`Operación desconocida: ${operacion}`);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     refreshView();
@@ -190,32 +260,9 @@ formulario.addEventListener('submit', (e) => {
 
     console.log(`Operación: ${operacion}, Tipo: ${tipo}, Nombre: ${nombre}`);
 
-    if (operacion === 'agregar') {
-        if (!nombre) {
-            alert('El nombre es requerido.');
-            return;
-        }
-        let entidad;
-        if (tipo === 'alumno') {
-            const carreraId = document.getElementById('carreras').value;
-            entidad = { nombre, carreraId };
-        } else if (tipo === 'carrera') {
-            entidad = { nombre };
-        }
-        add(tipo, entidad);
-    }
-    else if (operacion === 'eliminar') {
-        const id = document.getElementById('id').value;
-        if (id) {
-            eliminar(tipo, id);
-        } else {
-            alert('Por favor, ingrese el ID para eliminar.');
-        }
-    }
-    else if (operacion === 'modificar') {
-        alert('Modificar no está implementado.');
-    }
+    submitForm(tipo,nombre,operacion);
     formulario.reset();
+    refreshView();
 });
 
 limpiarBtn.addEventListener('click', () => {
@@ -225,4 +272,39 @@ limpiarBtn.addEventListener('click', () => {
 
 tipoSelect.addEventListener('change', () => {
     refreshView();
+});
+
+operacionSelect.addEventListener('change', () => {
+    refreshView();
+});
+
+carreraSelect.addEventListener('change', () => {
+    if(tipoSelect.value === 'carrera'){
+        const idCarrera = carreraSelect.value;
+        const nombre = carreraSelect.options[carreraSelect.selectedIndex].text;
+
+        nombreInput.value = nombre;
+        if(operacionSelect.value === 'modificar') nombreInput.disabled = false;
+        carreraSeleccionada = carrerasActuales.find(c =>c.id === idCarrera);
+    }
+});
+
+alumnoSelect.addEventListener('change', (event) => {
+    const idAlumno = event.target.value;
+    if(idAlumno){
+        const alumno = alumnosActuales.find(alumno => alumno.id === idAlumno);
+        alumnoSeleccionado = alumno;
+        nombreInput.value = alumno.nombre;
+        carreraSelect.value =alumno.carrera ? alumno.carrera:'';
+
+        const operacion = operacionSelect.value;
+        if(operacion === 'modificar'){
+            nombreInput.disabled = false;
+            carreraSelect.disabled = false;
+        }
+    }else{
+        nombreInput.disabled = true;
+        carreraSelect.disabled = true;
+    }
+
 });

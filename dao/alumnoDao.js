@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 class AlumnoDao {
-    constructor() {}
+    constructor() { }
 
     obtenerCantidadAlumnos() {
         return new Promise((resolve, reject) => {
@@ -19,30 +19,46 @@ class AlumnoDao {
             });
         });
     }
+
+    buscarAlumnos() {
+        return new Promise((resolve, reject) => {
+            const selectQuery =
+                `SELECT *
+                    FROM alumnos`;
+            db.query(selectQuery, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
     buscarAlumno(id) {
         return new Promise((resolve, reject) => {
-                const selectQuery =
-                    `SELECT *
+            const selectQuery =
+                `SELECT *
                     FROM alumnos 
                     WHERE id = ?`;
-                db.query(selectQuery, [id], (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result[0]);
-                    }
-                });
+            db.query(selectQuery, [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result[0]);
+                }
             });
+        });
     }
-    
+
     agregarAlumno(alumno) {
         return new Promise((resolve, reject) => {
             console.log('DAO - Objeto recibido:', alumno);
             // console.log('DAO - ID a insertar:', alumno.id);
-    
+
             const insertQuery = `INSERT INTO alumnos (id, nombre, id_carrera) VALUES (?, ?, ?)`;
             const values = [alumno.id, alumno.nombre, alumno.carrera];
-    
+
             db.query(insertQuery, values, (err, result) => {
                 if (err) {
                     reject(err);
@@ -68,6 +84,26 @@ class AlumnoDao {
                     reject(err);
                 } else {
                     // Devuelve el ID del registro eliminado
+                    resolve({ id });
+                }
+            });
+        });
+    }
+    /**
+     * Modifica un registro de alumno de la tabla.
+     * @param {*} id El ID del alumno a modificar.
+     * @param {*} datos Los datos a modificar en el registro.
+     * @returns Una promesa con el resultado de la modificacion.
+     */
+    modificar(id, datos) {
+        return new Promise((resolve, reject) => {
+            const query = 'UPDATE alumnos SET nombre = ? , id_carrera = ? WHERE id = ?';
+            const values = [datos.nombre, datos.carrera, id];
+
+            db.query(query, values, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
                     resolve({ id });
                 }
             });

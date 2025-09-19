@@ -1,4 +1,4 @@
-const { buscarAlumno, agregarAlumno} = require("../services/alumnoService.js");
+const { buscarAlumno, buscarAlumnos, agregarAlumno, eliminarAlumno, modificarAlumno} = require("../services/alumnoService.js");
 
 
 const addAlumno = async (req, res) => {
@@ -16,7 +16,8 @@ const addAlumno = async (req, res) => {
 
 const getAlumnos = async (req, res) => {
     try {
-        const alumnos = await AlumnoDao.buscarAlumnos();
+        const alumnos = await buscarAlumnos();
+        if(!alumnos[0]) return res.status(200).json({msj:'No hay alumnos registrados',alumnos:alumnos});
         res.status(200).json(alumnos);
     } catch (error) {
         console.error('Error al buscar los alumnos:', error);
@@ -39,14 +40,28 @@ const getAlumno = async (req,res) =>{
     }
 }
 
-const eliminarAlumno = async (req, res) => {
+const deleteAlumno = async (req, res) => {
     try {
         const { id } = req.params;
-        const alumnoEliminado = await AlumnoDao.eliminar(id);
+        if(!id) return res.status(400).json({error:'No se ingresó el ID del alumno'});
+        const alumnoEliminado = await eliminarAlumno(id);
         res.status(200).json(alumnoEliminado);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-module.exports = {getAlumno, addAlumno, getAlumnos, eliminarAlumno};
+const putAlumno = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {datos} = req.body;
+        if(!id) return res.status(400).json({error:'No se ingresó el ID del alumno'});
+        if(!datos) return res.status(400).json({error:'No se ingresaron los datos a modificar del alumno'});
+        const alumnoModificado = await modificarAlumno(id, datos);
+        res.status(200).json(alumnoModificado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = {getAlumno, addAlumno, getAlumnos, deleteAlumno, putAlumno};

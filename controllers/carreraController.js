@@ -1,4 +1,4 @@
-const { agregarCarrera, buscarCarrera, buscarCarreras} = require('../services/carreraService');
+const { agregarCarrera, buscarCarrera, buscarCarreras, eliminarCarrera, modificarCarrera} = require('../services/carreraService');
 
 const addCarrera = async (req, res) => {
     try {
@@ -34,14 +34,28 @@ const getCarrera = async(req, res)=> {
     }
 }
 
-const eliminarCarrera = async (req, res) => {
+const deleteCarrera = async (req, res) => {
     try {
         const { id } = req.params;
-        const carreraEliminada = await CarreraDao.eliminar(id);
+        if(!id) return res.status(401).json({error:'No se ingresó el ID de la carrera'});
+        const carreraEliminada = await eliminarCarrera(id);
         res.status(200).json(carreraEliminada);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-module.exports = {addCarrera, getCarreras,getCarrera, eliminarCarrera};
+const putCarrera = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {datos} = req.body;
+        if(!id) return res.status(400).json({error:'No se ingresó el ID de la carrera'});
+        if(!datos) return res.status(400).json({error:'No se ingresaron los datos a modificar de la carrera'});
+        const carreraModificada = await modificarCarrera(id, datos);
+        res.status(200).json(carreraModificada);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+module.exports = {addCarrera, getCarreras,getCarrera, deleteCarrera, putCarrera};

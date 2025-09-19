@@ -16,6 +16,7 @@ const buscarCarrera = async(idCarrera)=> {
 const buscarCarreras = async()=> {
     try {
         const res = await CarreraDao.buscarCarreras();
+        if (!res[0]) return [];
         const carreras = res.map(carrera => new Carrera(carrera.nombre, carrera.id));
         return carreras;
     } catch (error) {
@@ -55,4 +56,25 @@ const agregarCarrera = async(nombreCarrera) =>{
     }
 }
 
-module.exports = {buscarCarrera,buscarCarreras, agregarCarrera};
+const eliminarCarrera = async (idCarrera) => {
+    try {
+        const id = await CarreraDao.eliminar(idCarrera);
+        console.log('eliminado',id);
+        return id;
+    } catch (error) {
+        console.error('Hubo un error al eliminar la carrera:', error);
+        throw new Error('Hubo un error al eliminar la carrera');
+    }
+}
+
+const modificarCarrera = async (idCarrera, datos) => {
+    try {
+        const id = await CarreraDao.modificar(idCarrera,datos);
+        return id;
+    } catch (error) {
+        console.error('Hubo un error al modificar la carrera:', error);
+        throw new Error('Hubo un error al modificar la carrera');
+    }
+}
+
+module.exports = {buscarCarrera,buscarCarreras, agregarCarrera, eliminarCarrera, modificarCarrera};

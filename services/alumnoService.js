@@ -6,10 +6,22 @@ const buscarAlumno = async (idAlumno) => {
     try {
         const { id, nombre, id_carrera } = await AlumnoDao.buscarAlumno(idAlumno);
         if (!id) return null;
-        const alumno = new Alumno(id, nombre, id_carrera);
+        const alumno = new Alumno( nombre,id, id_carrera);
         return alumno;
     } catch (error) {
         throw new Error('Hubo un error al buscar al alumno');
+    }
+};
+
+const buscarAlumnos = async () => {
+    try {
+        const resultados = await AlumnoDao.buscarAlumnos();
+        if (!resultados[0]) return [];
+        const alumnos = resultados.map(alumno=>new Alumno(alumno.nombre,alumno.id, alumno.id_carrera));
+        return alumnos;
+    } catch (error) {
+        console.log(error);
+        throw new Error('Hubo un error al buscar los alumnos');
     }
 };
 
@@ -28,7 +40,7 @@ const agregarAlumno = async (alumno) => {
         throw new Error('No se ingresó la informacion del alumno');
     }
 
-    const carreraId = alumno.carreraId;
+    const carreraId = alumno.carreraId  || null;
     if (carreraId) {
         const carrera = await buscarCarrera(carreraId);
         if (!carrera) throw new Error('No existe una carrera con el ID ingresado');
@@ -47,7 +59,30 @@ const agregarAlumno = async (alumno) => {
     }
 };
 
+const eliminarAlumno = async (idAlumno) => {
+    try {
+        const id = await AlumnoDao.eliminar(idAlumno);
+        return id;
+    } catch (error) {
+        console.error('Hubo un error al eliminar el alumno:', error);
+        throw new Error('Hubo un error al eliminar el alumno');
+    }
+}
+
+const modificarAlumno = async (idAlumno, datos) => {
+    try {
+        if(!datos.carrera) datos.carrera=null;
+        const id = await AlumnoDao.modificar(idAlumno,datos);
+        return id;
+    } catch (error) {
+        console.error('Hubo un error al modificar el alumno:', error);
+        throw new Error('Hubo un error al modificar el alumno');
+    }
+}
 module.exports = {
     buscarAlumno,
+    buscarAlumnos,
     agregarAlumno,
+    eliminarAlumno,
+    modificarAlumno,
 };
