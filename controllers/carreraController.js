@@ -2,15 +2,16 @@ const { agregarCarrera, buscarCarrera, buscarCarreras, eliminarCarrera, modifica
 
 const addCarrera = async (req, res) => {
     try {
-        const { nombre } = req.body; 
+        const { nombre } = req.body;
+
         if(!nombre) return res.status(400).json({error:'No se ingresó el nombre de la carrera'});
 
         const carreraAgregada = await agregarCarrera(nombre);
         if(!carreraAgregada) return res.status(409).json({error:'Ya existe una carrera con ese nombre'});
         
-        res.status(201).json(carreraAgregada);
+        return res.status(201).json(carreraAgregada);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
     }
 };
 
