@@ -51,6 +51,22 @@ class AlumnoDao {
         });
     }
 
+    buscarAlumnosPorCarrera(carrera) {
+        return new Promise((resolve, reject) => {
+            const selectQuery =
+                `SELECT *
+                    FROM alumnos 
+                    WHERE id_carrera = ?`;
+            db.query(selectQuery, [carrera], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
     agregarAlumno(alumno) {
         return new Promise((resolve, reject) => {
             console.log('DAO - Objeto recibido:', alumno);

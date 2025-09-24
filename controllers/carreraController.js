@@ -5,7 +5,8 @@ const addCarrera = async (req, res) => {
         const { nombre } = req.body; 
         if(!nombre) return res.status(400).json({error:'No se ingresó el nombre de la carrera'});
 
-        const carreraAgregada = await agregarCarrera(nuevaCarrera);
+        const carreraAgregada = await agregarCarrera(nombre);
+        if(!carreraAgregada) return res.status(409).json({error:'Ya existe una carrera con ese nombre'});
         
         res.status(201).json(carreraAgregada);
     } catch (error) {
@@ -37,9 +38,9 @@ const getCarrera = async(req, res)=> {
 const deleteCarrera = async (req, res) => {
     try {
         const { id } = req.params;
-        if(!id) return res.status(401).json({error:'No se ingresó el ID de la carrera'});
         const carreraEliminada = await eliminarCarrera(id);
-        res.status(200).json(carreraEliminada);
+        if (!carreraEliminada) return res.status(404).json({error:'No se encontró la carrera con el ID ingresado'});
+        res.status(200).json({id:carreraEliminada});
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -49,9 +50,9 @@ const putCarrera = async (req, res) => {
     try {
         const {id} = req.params;
         const {datos} = req.body;
-        if(!id) return res.status(400).json({error:'No se ingresó el ID de la carrera'});
         if(!datos) return res.status(400).json({error:'No se ingresaron los datos a modificar de la carrera'});
         const carreraModificada = await modificarCarrera(id, datos);
+        if (!carreraModificada) return res.status(404).json({error:'No se encontró la carrera con el ID ingresado'});
         res.status(200).json(carreraModificada);
     } catch (error) {
         res.status(400).json({ error: error.message });

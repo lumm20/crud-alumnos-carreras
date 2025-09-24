@@ -1,29 +1,26 @@
+const { Model, DataTypes } = require("sequelize");
 
-class Alumno{
-    constructor(nombre, id, carrera=null){
-        this.nombre = nombre;
-        this.id = id;
-        this.carrera = carrera;
-    }
-
-    getCarrera(){
-        return this.carrera;
-    }
-
-    setCarrera(carrera){
-        this.carrera = carrera;
-    }
-
-    getId(){
-        return this.id;
-    }
-
-    getNombre(){
-        return this.nombre;
-    }
-
-    setNombre(nombre){
-        this.nombre = nombre;
+class Alumno extends Model {
+    static initModel(sequelize) {
+        Alumno.init(
+            {
+                id: {
+                    type: DataTypes.STRING(10),
+                    primaryKey: true,
+                    allowNull: false
+                },
+                nombre: {
+                    type: DataTypes.STRING(100),
+                    allowNull: false
+                },
+                id_carrera: {
+                    type: DataTypes.STRING(10),
+                    allowNull: true
+                }
+            },
+            { sequelize, modelName: 'Alumno', tableName: 'alumnos', timestamps: false }
+        );
+        return Alumno;
     }
 }
 

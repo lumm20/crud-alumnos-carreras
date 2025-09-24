@@ -119,28 +119,12 @@ async function getAlumnos() {
     try {
         const res = await fetch('/alumnos');
         const alumnos = await res.json();
+        console.log('alumnos:',alumnos);
         alumnosActuales = alumnos;
         fillSelect(alumnoSelect, alumnos);
     } catch (err) {
         console.error('Error al obtener los alumnos:', err);
     }
-}
-
-
-
-//Para mostrar la lista de carreras
-
-function displayCarreras() {
-    carrerasLista.innerHTML = '';
-    if (carrerasActuales.length === 0) {
-        carrerasLista.innerHTML = '<li>No hay carreras registradas.</li>';
-    }
-    carrerasActuales.forEach(carrera => {
-        const li = document.createElement('li');
-        li.innerHTML = `ID: ${carrera.id}, Nombre: ${carrera.nombre} 
-                        <button onclick="eliminar('carrera', '${carrera.id}')">Eliminar</button>`;
-        carrerasLista.appendChild(li);
-    });
 }
 
 
@@ -158,7 +142,9 @@ function createSelectOption(value, textContent, select) {
 
 /**
  * si el array del param no esta vacio,
- * llena el select del parametro con la lista de entidades del parametro 
+ * llena el select indicado con los elementos del array
+ * @param {*} select el elemento select a llenar
+ * @param {*} arr el array con los elementos a agregar al select
  */
 function fillSelect(select, arr) {
     select.innerHTML = "";
@@ -208,7 +194,7 @@ function submitForm(tipo, nombre, operacion){
     `Por favor, seleccione 
     ${tipo==='alumno'?'el alumno ':'la carrera '}
     a ${operacion}`;
-    console.log(msjAlert);
+
     switch (operacion) {
     case 'agregar':
       if (!nombre) {
@@ -238,7 +224,7 @@ function submitForm(tipo, nombre, operacion){
         modificar(tipo, id, {
           datos: {
             nombre: nombreInput.value,
-            ...(tipo === 'alumno' && { carrera: carreraSelect.value })
+            ...(tipo === 'alumno' && { carreraId: carreraSelect.value })
           }
         });
       }
@@ -295,7 +281,7 @@ alumnoSelect.addEventListener('change', (event) => {
         const alumno = alumnosActuales.find(alumno => alumno.id === idAlumno);
         alumnoSeleccionado = alumno;
         nombreInput.value = alumno.nombre;
-        carreraSelect.value =alumno.carrera ? alumno.carrera:'';
+        carreraSelect.value =alumno.id_carrera ? alumno.id_carrera:'';
 
         const operacion = operacionSelect.value;
         if(operacion === 'modificar'){
