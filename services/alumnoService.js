@@ -4,7 +4,6 @@ const { buscarCarrera } = require('./carreraService');
 const buscarAlumno = async (idAlumno) => {
     try {
         const alumno = await Alumno.findByPk(idAlumno) || {};
-        console.log('alumno encontrado:',alumno);
         // if (!alumno) return null;
         return alumno;
     } catch (error) {
@@ -82,7 +81,7 @@ const modificarAlumno = async (idAlumno, datos) => {
     try {
         const alumnoExistente = await buscarAlumno(idAlumno);
         if (!alumnoExistente) return null;
-        await alumnoExistente.update({nombre:datos.nombre, id_carrera:datos.carreraId});
+        await alumnoExistente.update({nombre:datos.nombre, id_carrera:datos.id_carrera});
         return {id:alumnoExistente.id,nombre:alumnoExistente.nombre};
     } catch (error) {
         console.error('Hubo un error al modificar el alumno:', error);
