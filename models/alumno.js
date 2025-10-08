@@ -52,4 +52,4 @@ const alumnoSchema = new Schema({
     timestamps: false 
 });
 
-module.exports = mongoose.model('Alumno', alumnoSchema);
+module.exports.alumnoModel = mongoose.model('Alumno', alumnoSchema);

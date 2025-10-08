@@ -3,10 +3,10 @@ const { buscarAlumno, buscarAlumnos, agregarAlumno, eliminarAlumno, modificarAlu
 
 const addAlumno = async (req, res) => {
     try {
-        const { nombre, carreraId } = req.body;
+        const { nombre, id_carrera } = req.body;
         if(!nombre) return res.status(400).json({error:'No se ingresó el nombre del alumno'});
 
-        const nuevoAlumno = { nombre, carreraId };
+        const nuevoAlumno = { nombre, id_carrera };
         const alumnoAgregado = await agregarAlumno(nuevoAlumno);
         if(!alumnoAgregado) return res.status(404).json({error:'No se pudo agregar el alumno. Verifique que la carrera exista.'});
         res.status(201).json(alumnoAgregado);
@@ -52,11 +52,13 @@ const putAlumno = async (req, res) => {
     try {
         const {id} = req.params;
         const {datos} = req.body;
+        // console.log(datos, id);
         if(!datos) return res.status(400).json({error:'No se ingresaron los datos a modificar del alumno'});
         const alumnoModificado = await modificarAlumno(id, datos);
         if(!alumnoModificado) return res.status(404).json({error:'No se encontró el alumno con el ID ingresado'});
         res.status(200).json(alumnoModificado);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: error.message });
     }
 };

@@ -1,9 +1,9 @@
-const Carrera = require('../models/carrera');
+const {carreraModel} = require('../models/carrera');
 
 const buscarCarrera = async(idCarrera)=> {
     try {
-        const carreraEncontrada = await Carrera.findByPk(idCarrera);
-        console.log('carrera encontrada:',carreraEncontrada);
+        const carreraEncontrada = await carreraModel.findOne({id:idCarrera});
+        // console.log('carrera encontrada:',carreraEncontrada);
         // if (!carreraEncontrada) return null;
         return carreraEncontrada;
     } catch (error) {
@@ -13,7 +13,8 @@ const buscarCarrera = async(idCarrera)=> {
 }
 const buscarCarreras = async()=> {
     try {
-        const res = await Carrera.findAll();
+        const res = await carreraModel.find({});
+        // console.log(res);
         if (!res[0]) return [];
         const carreras = res.map(carrera =>({nombre:carrera.nombre, id:carrera.id}));
         return carreras;
@@ -25,8 +26,8 @@ const buscarCarreras = async()=> {
 
 const obtenerSiguienteIdCarrera = async () => {
     try {
-        const cantidadCarreras= await Carrera.count();
-        console.log('cantidad carreras', cantidadCarreras);
+        const cantidadCarreras= await carreraModel.countDocuments();
+        // console.log('cantidad carreras', cantidadCarreras);
         return `car-${cantidadCarreras + 1}`;
     } catch (error) {
         console.error('Error al obtener el siguiente ID para la carrera',error);
@@ -37,13 +38,13 @@ const obtenerSiguienteIdCarrera = async () => {
 
 const agregarCarrera = async(nombreCarrera) =>{
     try {
-        const carreraExistente = await Carrera.findOne({where: {nombre:nombreCarrera}});
+        const carreraExistente = await carreraModel.findOne({nombre:nombreCarrera});
         if(carreraExistente)return null;
 
         const nuevoId = await obtenerSiguienteIdCarrera();
         const newCarrera = { nombre: nombreCarrera, id: nuevoId };
 
-        await Carrera.create(newCarrera);
+        await carreraModel.create(newCarrera);
         return newCarrera;
     } catch (error) {
         console.error('Hubo un error al agregar la carrera:', error);
@@ -53,10 +54,8 @@ const agregarCarrera = async(nombreCarrera) =>{
 
 const eliminarCarrera = async (idCarrera) => {
     try {
-        const carreraExistente = await buscarCarrera(idCarrera);
-        if (!carreraExistente) return null;
-        await carreraExistente.destroy();
-        return idCarrera;
+        const carreraEliminada = await carreraModel.findOneAndDelete({id:idCarrera});
+        return carreraEliminada ? carreraEliminada.id:null;
     } catch (error) {
         console.error('Hubo un error al eliminar la carrera:', error);
         throw new Error('Hubo un error al eliminar la carrera');
@@ -65,10 +64,9 @@ const eliminarCarrera = async (idCarrera) => {
 
 const modificarCarrera = async (idCarrera, datos) => {
     try {
-        const carreraExistente = await buscarCarrera(idCarrera);
-        if (!carreraExistente) return null;
-        await carreraExistente.update(datos);
-        return {id:carreraExistente.id,nombre:carreraExistente.nombre};
+        const carreraModificada = await carreraModel.findOneAndUpdate({id:idCarrera},datos);
+        // console.log(carreraModificada);
+        return {id:carreraModificada.id,nombre:carreraModificada.nombre};
     } catch (error) {
         console.error('Hubo un error al modificar la carrera:', error);
         throw new Error('Hubo un error al modificar la carrera');

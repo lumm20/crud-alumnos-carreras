@@ -41,4 +41,4 @@ const carreraSchema = new Schema({
     timestamps: false 
 });
 
-module.exports = mongoose.model('Carrera', carreraSchema);
+module.exports.carreraModel = mongoose.model('Carrera', carreraSchema);

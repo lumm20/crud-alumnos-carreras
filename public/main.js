@@ -58,7 +58,6 @@ function eliminar(tipo, id) {
     if(tipo !== "alumno" && tipo !== "carrera") return;
     const url = `/${tipo}s/${id}`;
     
-    console.log('url',url);
     fetch(url, {
         method: 'DELETE',
     })
@@ -121,7 +120,7 @@ async function getAlumnos() {
     try {
         const res = await fetch('/alumnos');
         const alumnos = await res.json();
-        console.log('alumnos:',alumnos);
+        // console.log('alumnos:',alumnos);
         alumnosActuales = alumnos;
         fillSelect(alumnoSelect, alumnos);
     } catch (err) {
@@ -168,7 +167,6 @@ async function refreshView() {
   const listaAlumnosDiv = document.getElementById('alumnos-div');
 
   const isStudent = tipo === 'alumno';
-  const isDeleting = operacion === 'eliminar';
   const isEditing =  operacion === 'modificar';
   const isAdding = operacion === 'agregar';
 
@@ -201,7 +199,8 @@ function submitForm(tipo, nombre, operacion){
 
     datos.nombre = nombre;
     if(tipo==='alumno') datos.id_carrera = carreraSelect.value || null;
-    console.log('datos a enviar:',datos);
+    // console.log('datos a enviar:',datos);
+
     switch (operacion) {
     case 'agregar':
       if (!nombre) {
@@ -242,8 +241,6 @@ formulario.addEventListener('submit', (e) => {
     const tipo = tipoSelect.value;
     const nombre = nombreInput.value;
     const operacion = document.getElementById('operacion').value;
-
-    console.log(`Operación: ${operacion}, Tipo: ${tipo}, Nombre: ${nombre}`);
 
     submitForm(tipo,nombre,operacion);
     formulario.reset();

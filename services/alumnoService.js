@@ -1,9 +1,10 @@
-const Alumno = require('../models/alumno');
+const {alumnoModel} = require('../models/alumno');
 const { buscarCarrera } = require('./carreraService');
 
 const buscarAlumno = async (idAlumno) => {
     try {
-        const alumno = await Alumno.findByPk(idAlumno) || {};
+        const alumno = await alumnoModel.findOne({id:idAlumno}).populate('id_carrera');
+        // console.log(alumno);
         // if (!alumno) return null;
         return alumno;
     } catch (error) {
@@ -14,9 +15,12 @@ const buscarAlumno = async (idAlumno) => {
 
 const buscarAlumnosPorCarrera = async (idCarrera) => {
     try {
-        const resultados = await Alumno.findAll({ where: { id_carrera: idCarrera } });
+        const carrera = await buscarCarrera(idCarrera);
+        if(!carrera) return null;
+        const resultados = await alumnoModel.find({id_carrera:idCarrera});
+        // console.log(resultados);
         if (!resultados[0]) return [];
-        const alumnos = resultados.map(alumno=>({nombre:alumno.nombre,id:alumno.id, id_carrera:alumno.id_carrera}));
+        const alumnos = resultados.map(alumno=>({nombre:alumno.nombre,id:alumno.id, id_carrera:carrera.id}));
         return alumnos;
     } catch (error) {
         console.error('Error al buscar los alumnos por carrera:', error);
@@ -25,9 +29,9 @@ const buscarAlumnosPorCarrera = async (idCarrera) => {
 };
 const buscarAlumnos = async () => {
     try {
-        const resultados = await Alumno.findAll();
+        const resultados = await alumnoModel.find({}).populate('id_carrera');
         if (!resultados[0]) return [];
-        const alumnos = resultados.map(alumno=>({nombre:alumno.nombre,id:alumno.id, id_carrera:alumno.id_carrera}));
+        const alumnos = resultados.map(alumno=>({nombre:alumno.nombre,id:alumno.id, id_carrera:alumno.id_carrera.id ||null}));
         return alumnos;
     } catch (error) {
         console.error('Error al buscar los alumnos:', error);
@@ -37,7 +41,7 @@ const buscarAlumnos = async () => {
 
 const obtenerSiguienteIdAlumno = async () => {
     try {
-        const cantidadAlumnos = await Alumno.count();
+        const cantidadAlumnos = await alumnoModel.countDocuments();
         return `alu-${cantidadAlumnos + 1}`;
     } catch (error) {
         console.error('Error al obtener el siguiente ID de alumno:', error);
@@ -46,18 +50,19 @@ const obtenerSiguienteIdAlumno = async () => {
 };
 
 const agregarAlumno = async (alumno) => {
-    const carreraId = alumno.carreraId  || null;
+    const carreraId = alumno.id_carrera  || null;
+    let carrera;
     if (carreraId) {
-        const carrera = await buscarCarrera(carreraId);
+        carrera = await buscarCarrera(carreraId);
         if (!carrera) return null;
     }
 
     try {
         const nuevoId = await obtenerSiguienteIdAlumno();
-        // console.log('ID generado en el controlador:', nuevoId);
 
-        const newAlumno = {nombre: alumno.nombre, id: nuevoId, id_carrera: carreraId};
-        await Alumno.create(newAlumno);
+        const newAlumno = {nombre: alumno.nombre, id: nuevoId, id_carrera: carrera._id||null};
+        await alumnoModel.create(newAlumno);
+        newAlumno.id_carrera = carreraId;
         return newAlumno;
     } catch (error) {
         console.error('Hubo un error al agregar el alumno:', error);
@@ -67,10 +72,9 @@ const agregarAlumno = async (alumno) => {
 
 const eliminarAlumno = async (idAlumno) => {
     try {
-        const alumnoExistente = await buscarAlumno(idAlumno);
-        if (!alumnoExistente) return null;
-        await alumnoExistente.destroy();
-        return idAlumno;
+        const alumnoEliminado = await alumnoModel.findOneAndDelete({id:idAlumno});
+        // console.log(alumnoEliminado);
+        return alumnoEliminado ? alumnoEliminado.id:null;
     } catch (error) {
         console.error('Hubo un error al eliminar el alumno:', error);
         throw new Error('Hubo un error al eliminar el alumno');
@@ -79,10 +83,18 @@ const eliminarAlumno = async (idAlumno) => {
 
 const modificarAlumno = async (idAlumno, datos) => {
     try {
-        const alumnoExistente = await buscarAlumno(idAlumno);
-        if (!alumnoExistente) return null;
-        await alumnoExistente.update({nombre:datos.nombre, id_carrera:datos.id_carrera});
-        return {id:alumnoExistente.id,nombre:alumnoExistente.nombre};
+        const idCarrera = datos.id_carrera|| null;
+        if(idCarrera){
+            const carrera = await buscarCarrera(idCarrera);
+            if(!carrera) return null;
+            datos.id_carrera= carrera._id;
+        }
+
+        const alumnoModficado = await alumnoModel.findOneAndUpdate({id:idAlumno},datos);
+        // console.log(alumnoModficado);
+        return alumnoModficado ? 
+        {id:alumnoModficado.id,nombre:alumnoModficado.nombre, id_carrera:idCarrera} :
+        null;
     } catch (error) {
         console.error('Hubo un error al modificar el alumno:', error);
         throw new Error('Hubo un error al modificar el alumno');
